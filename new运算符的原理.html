@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>模拟实现new操作符</title>
+</head>
+<body>
+  <script>
+      var A = function() {
+        return {
+          name: "I return an obj."
+        }
+      }
+
+      var B = function() {
+        this.name = "B"
+      }
+
+      var newFunc = function(constructor) {
+        // 1. 通过Object.create生成一个新对象并把它跟构造函数的原型对象关联起来
+        var obj = Object.create(constructor.prototype);
+
+        // 2. 执行构造函数，把this指向obj
+        var result = constructor.call(obj);
+
+        // 3. 判断构造函数返回的是不是一个对象
+        // a. 如果构造函数返回一个对象，那么这个对象就是new操作符返回的结果，之前生成obj就会被抛弃。
+        // b. 如果构造函数没有返回对象，那么new操作符的结果就是obj。
+        if (typeof(result) === "object") {
+          return result;
+        } else {
+          return obj;
+        }
+      }
+
+      var a = newFunc(A);
+      var b = newFunc(B);
+
+      console.log(a);
+      console.log(b);
+      console.log(b.name); // B
+      console.log(b.__proto__ === B.prototype); // true
+  </script>
+</body>
+</html>
