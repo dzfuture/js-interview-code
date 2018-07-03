@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>错误监控</title>
+</head>
+<body>
+  <!-- 针对资源加载错误 -->
+  <!-- 1. 在对应的标签上添加onerror事件 -->
+  <img src="123456" alt="" onerror="console.log('this img is not found')">
+
+  <!-- 2. 在window上通过事件捕获阶段是可以捕获资源加载错误的。 -->
+  <script>
+    window.addEventListener('error', function(e) {
+      console.log("捕获", e);
+    }, true)
+  </script>
+
+  <!-- 上报错误的基本原理 -->
+  <script>
+    // 1. 创建一个Image对象
+    // 2. 将它的src指向你想要收集错误的地址
+    // 3. 在url的query string中传递你想要收集的错误信息
+    (new Image()).src = "http://你想要收集的错误的地址?r=想要收集的信息"
+  </script>
+</body>
+</html>
