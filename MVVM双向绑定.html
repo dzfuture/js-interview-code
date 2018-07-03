@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>MVVM双向绑定的实现</title>
+</head>
+<body>
+  <input type="text" id="name">
+  <label for="" id="showName"></label>
+
+  <script>
+    var inputEl = document.getElementById("name");
+
+    // 正向：data发生变化更新view
+    var obj = {};
+    var tempVal = "Frank Deng";
+    var obj1 = Object.defineProperty(obj, "name", {
+      enumerable: true,
+      configurable: true,
+      get() {
+        return tempVal;
+      },
+      set(value) {
+        if (value !== tempVal) {
+          inputEl.value = value;
+        }
+
+        tempVal = value;
+      }
+    });
+
+    inputEl.value = obj1.name;
+
+    // 反向：view发生变化更新data
+    inputEl.addEventListener("change", function() {
+      obj1.name = inputEl.value;
+      document.getElementById("showName").innerText = obj1.name;
+    })
+  </script>
+</body>
+</html>
