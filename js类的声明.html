@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>JS中类的声明</title>
+</head>
+<body>
+  <script>
+    // ES5通过构造函数声明
+    function Animal(name) {
+      this.name = name;
+    }
+    
+    // ES6通过class关键字
+    class Car {
+      constructor(type = "BMW") {
+        this.type = type;
+      }
+
+      test() {
+        console.log(this.type)
+      }
+    }
+
+    // 实例化
+    var animal = new Animal("兔子");
+    var car = new Car();
+
+    console.log(animal.name);
+    console.log(car.type);
+    car.test();
+  </script>
+</body>
+</html>
