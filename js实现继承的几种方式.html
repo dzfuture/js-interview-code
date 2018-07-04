@@ -131,6 +131,8 @@
       constructor(name = "parent") {
         this.name = name;
       }
+
+      say() {}
     }
     class Child6 extends Parent {
 
@@ -147,6 +149,9 @@
     console.log("ES6", child1.name);
     var child2 = new Child7("child");
     console.log("ES6", child2.name);
+    console.log("ES6", child1.say === child2.say); // true
+    console.log("ES6", child1.__proto__); // Parent
+    console.log("ES6", child1.__proto__.constructor); // Child6
   </script>
 </body>
 </html>
