@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    //********** ES5 **********//
+    // 1. 借助构造函数实现继承
+    // 原理：
+    //    a. 在子类构造函数中通过call和apply调用父类构造函数。
+    //    b. 将父类构造函数的this指向子类构造函数的实例上去，导致父类构造函数的所有属性子类中都会有。
+    // 缺陷：
+    //    a. 方法都在构造函数中定义，因此函数复用就无从谈起了。
+    //    b. 在父类原型中定义的方法，对子类而言是不可见的，所有类型都只能使用构造函数模式。
+    function Parent1() {
+      this.name = "parent1";
+      this.say = function() {};
+    }
+    function Child1() {
+      Parent1.call(this);
+      this.type = "child1";
+    }
+    console.log("构造函数继承", new Child1().say === new Child1().say); // false
+
+    // 2. 借助原型链实现继承
+    // 原理：
+    //    a. 让子类构造函数的prototype属性指向父类构造函数的一个实例。
+    //    b. 子类构造函数的原型对象就是父类的一个实例子。
+    //    c. 子类实力的__proto__属性就指向父类的这个实例。
+    function Parent2() {
+      this.name = "parent2";
+      this.arr = [1, 2, 3];
+      this.say = function() {}
+    }
+    function Child2() {
+      this.type = "child2";
+    }
+    var parent2 = new Parent2();
+    Child2.prototype = parent2;
+    console.log("原型链继承", new Child2().say === new Child2().say); // true
+    console.log("原型链继承", new Child2().__proto__ === Child2.prototype); // true
+    console.log("原型链继承", new Child2().__proto__ === parent2); // true
+    // 缺陷:
+    //    a. 当父元素上包含引用类型的属性的时候，所有实例都会共享相应的值。
+    //    b. 因为child1.__proto__ === child2__proto__，它们都指向父类的一个实例，因此引用类型属性的地址是同一个。
+    //    c. 当通过child1改变这个引用类型的属性的时候，child2对应的这个属性也会随之改变，因为它们的地址指向同一个地方。
+    var c1 = new Child2();
+    var c2 = new Child2();
+    c1.arr.push(4);
+    console.log("原型链继承", c1.arr, c2.arr); // [1, 2, 3, 4] [1, 2, 3, 4]
+    console.log("原型链继承", c1.__proto__ === c2.__proto__); // true
+    console.log("原型链继承", c1.__proto__.constructor === Parent2); // true
+
+    // 3. 组合继承
+    // 原理：
+    //    将父类构造函数的this分别指向每个不同的子类对象，把父类对象的属性都挂载到不同的子类对象上，它们不再共用父类构造函数中的属性。
+    function Parent3() {
+      this.name = "parent3";
+      this.arr = [1, 2, 3];
+    }
+    function Child3() {
+      // 执行了父类的构造函数
+      Parent3.call(this);
+      this.type = "child3";
+    }
+    // 执行了父类的构造函数
+    var parent3 = new Parent3();
+    Child3.prototype = new Parent3();
+    var s1 = new Child3();
+    var s2 = new Child3();
+    s1.arr.push(4);
+    console.log("组合继承", s1.arr, s2.arr); // [1, 2, 3, 4] [1, 2, 3]
+    console.log("组合继承", s1.__proto__.constructor); // Parent3
+    // 缺陷：
+    //    a. 父类的构造函数执行了多次。
+    //    b. 子类构造函数原型对象的constructor指向父类Parent。
+
+    // 4. 组合继承优化1
+    // 原理：
+    //    a. 构造函数中尽量只写属性，将可以共享的方法写在原型对象上。
+    //    b. 在子类中执行父类的构造函数，子类已经继承了父类构造函数中定义的所有属性和方法，只需要再去继承父类原型链上的方法即可。
+    //    c. 直接把子类的prototype的属性指向父类构造函数的原型对象。
+    function Parent4 () {
+      this.name = "parent4";
+      this.arr = [1, 2, 3];
+    }
+    function Child4 () {
+      Parent4.call(this);
+      this.type = 'child4';
+    }
+    Child4.prototype = Parent4.prototype;
+    var a1 = new Child4();
+    var a2 = new Child4();
+    a1.arr.push(4);
+    console.log("组合继承优化1", a1.arr, a2.arr); // [1, 2, 3, 4]  [1, 2, 3]
+    // 缺陷：
+    //    a. 子类原型对象的constructor指向丢失。
+    //    b. 怎么区分一对象是直接由它的子类实例化的还是由它的父类实例化的？当出现继承的时候，instanceof此时失效。
+    //    c. 当出现继承时，通过instanceof来判断一个对象是直接由它的子类实例化的还是由它的父类实例化的是无效的，此时就需要通过原型对象的constructor来判断。
+    //    d. 子类实力的__proto__指向子类构造函数的原型对象，因为Child.prototype = Parent.prototype，子类实力的原型对象和父类实例的原型对象是一个对象，都是父类构造函数的原型对象，因此child.__proto__.constuctor指向父类构造函数Parent.
+    //    e. 无法通过对象的constructor属性判断一个对象是直接由它的子类实例化的还是由它的父类实例化的。
+    console.log("组合继承优化1", a1.__proto__.constructor); // Parent4
+    console.log("组合继承优化1", a1.constructor === a1.__proto__.constructor); // true
+
+    // 5. 组合继承优化2（组合继承方式的完美写法）
+    // 原理：
+    //    a. 通过Object.create()创建中间对象实现子类和父类原型对象的隔离。
+    //    b. 因为var obj = Object.create(p)创建的对象的原型对象就是它的参数对象，也就是说obj.__proto__ === p，因此原型链就饿链接起来了。
+    //    c. 将子类构造函数的原型对象重新指回Child构造函数。
+    function Parent5 () {
+        this.name = "parent5";
+        this.play = [1, 2, 3];
+    }
+    function Child5 () {
+        Parent5.call(this);
+        this.type = 'child5';
+    }
+    Child5.prototype =  Object.create(Parent5.prototype);
+    Child5.prototype.constructor = Child5;
+    var ch1 = new Child5();
+    console.log("最完美的写法", ch1.constructor); // Child5
+    var p2 = new Parent5();
+    console.log("最完美的写法", p2.constructor); // Parent5
+
+    //********** ES6 **********//
+    class Parent {
+      constructor(name = "parent") {
+        this.name = name;
+      }
+    }
+    class Child6 extends Parent {
+
+    }
+    class Child7 extends Parent {
+      constructor(name, age) {
+        // 调用父类的constructor(name)
+        super(name)
+
+        this.age = 10;
+      }
+    }
+    var child1 = new Child6();
+    console.log("ES6", child1.name);
+    var child2 = new Child7("child");
+    console.log("ES6", child2.name);
+  </script>
+</body>
+</html>
